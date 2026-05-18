@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#d4537e">
+<title>Forever with Sukriti</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+    color: #4a1b3d;
+    overscroll-behavior: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+    min-height: 100vh;
+    position: relative;
+  }
+  .hearts-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .heart {
+    position: absolute;
+    color: rgba(244, 114, 182, 0.35);
+    font-size: 20px;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+  }
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    justify-content: space-evenly;
+    padding: 20px 0;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .header .small {
+    font-size: 14px;
+    color: #be185d;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 400;
+    margin-top: 8px;
+    color: #831843;
+    font-style: italic;
+  }
+  .photo-frame {
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    padding: 6px;
+    background: linear-gradient(135deg, #f472b6, #ec4899, #db2777);
+    box-shadow: 0 10px 40px rgba(219, 39, 119, 0.3);
+    position: relative;
+    transition: transform 0.6s ease;
+  }
+  .photo-frame.flipping {
+    transform: rotateY(180deg);
+  }
+  .photo-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+  }
+  .photo-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.6s ease;
+  }
+  .photo-inner .placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    color: #831843;
+    font-size: 60px;
+  }
+  .countdown {
+    text-align: center;
+  }
+  .days-number {
+    font-size: 96px;
+    font-weight: 300;
+    color: #831843;
+    line-height: 1;
+    font-family: 'Georgia', serif;
+    text-shadow: 0 2px 10px rgba(219, 39, 119, 0.2);
+  }
+  .days-label {
+    font-size: 16px;
+    color: #be185d;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+  }
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .time-cell {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 10px 4px;
+    text-align: center;
+    border: 1px solid rgba(244, 114, 182, 0.2);
+  }
+  .time-cell .num {
+    font-size: 22px;
+    font-weight: 500;
+    color: #831843;
+    font-family: 'Georgia', serif;
+  }
+  .time-cell .lbl {
+    font-size: 10px;
+    color: #be185d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+  .message {
+    text-align: center;
+    font-style: italic;
+    color: #831843;
+    font-size: 15px;
+    max-width: 320px;
+    line-height: 1.6;
+    padding: 0 10px;
+    min-height: 50px;
+  }
+  .footer {
+    font-size: 11px;
+    color: #be185d;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+  }
+  .wedding-day {
+    display: none;
+    text-align: center;
+  }
+  .wedding-day.show {
+    display: block;
+  }
+  .wedding-day h2 {
+    font-size: 48px;
+    color: #831843;
+    font-style: italic;
+    margin: 10px 0;
+  }
+  .wedding-day p {
+    font-size: 18px;
+    color: #be185d;
+    margin: 5px 0;
+  }
+  @media (max-height: 700px) {
+    .photo-frame { width: 200px; height: 200px; }
+    .days-number { font-size: 72px; }
+    .header h1 { font-size: 24px; }
+  }
+  @media (max-height: 600px) {
+    .photo-frame { width: 160px; height: 160px; }
+    .days-number { font-size: 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="hearts-bg" id="hearts"></div>
+
+<div class="container">
+  <div class="header">
+    <div class="small">Counting down to forever</div>
+    <h1>Sukriti &amp; Aneesh</h1>
+  </div>
+
+  <div class="photo-frame" id="photoFrame">
+    <div class="photo-inner">
+      <img id="photo" alt="Us" style="display:none;">
+      <div class="placeholder" id="placeholder">&#10084;</div>
+    </div>
+  </div>
+
+  <div class="countdown" id="countdown">
+    <div class="days-number" id="days">--</div>
+    <div class="days-label">Days until I marry you</div>
+    <div class="time-grid">
+      <div class="time-cell"><div class="num" id="hrs">00</div><div class="lbl">Hours</div></div>
+      <div class="time-cell"><div class="num" id="mins">00</div><div class="lbl">Minutes</div></div>
+      <div class="time-cell"><div class="num" id="secs">00</div><div class="lbl">Seconds</div></div>
+    </div>
+  </div>
+
+  <div class="wedding-day" id="weddingDay">
+    <h2>Today is the day</h2>
+    <p>I'm marrying my favorite person.</p>
+    <p>I love you, Sukriti.</p>
+  </div>
+
+  <div class="message" id="message">Every moment closer to you.</div>
+
+  <div class="footer">12 &middot; 09 &middot; 2026</div>
+</div>
+
+<script>
+  const WEDDING_DATE = new Date('2026-09-12T11:00:00+05:30').getTime();
+
+  const PHOTO_ROTATION_MINUTES = 0.5;
+
+  const PHOTO_URLS = [
+    "https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo1.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/ßountdown-photos/main/photo2.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo3.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo4.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo5.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo6.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo7.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo8.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo9.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo10.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo11.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo12.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo13.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo14.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo15.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo16.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo17.jpg",
+"https://raw.githubusercontent.com/aneeshkapurbain/countdown-photos/main/photo18.jpg"
+  ];
+
+  const MESSAGES = [
+    "Every moment closer to you.",
+    "You're my favorite hello and my hardest goodbye.",
+    "Forever doesn't feel long enough with you.",
+    "My heart picked you. My soul agrees.",
+    "I love you more today than yesterday.",
+    "You make ordinary days feel like poetry.",
+    "Counting days, but living for moments with you.",
+    "You're the best thing that ever happened to me.",
+    "Home isn't a place. It's you.",
+    "I can't wait to call you my wife.",
+    "Sukriti, you are my whole world.",
+    "Every love story is beautiful, but ours is my favorite.",
+    "Your smile is my favorite notification.",
+    "Forever begins on September 12.",
+    "I'd choose you in every lifetime."
+  ];
+
+  function getRotationIndex() {
+    const now = new Date();
+    const totalMinutes = Math.floor(now.getTime() / (1000 * 60));
+    return Math.floor(totalMinutes / PHOTO_ROTATION_MINUTES);
+  }
+
+  function getDayOfYear() {
+    const start = new Date(2025, 0, 0);
+    const now = new Date();
+    const diff = now - start;
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function loadPhoto() {
+    const rotIndex = getRotationIndex();
+    const photoIndex = rotIndex % PHOTO_URLS.length;
+    const msgIndex = rotIndex % MESSAGES.length;
+    const img = document.getElementById('photo');
+    const placeholder = document.getElementById('placeholder');
+    const msg = document.getElementById('message');
+
+    msg.textContent = MESSAGES[msgIndex];
+
+    const url = PHOTO_URLS[photoIndex];
+    if (url && !url.includes('YOUR_USERNAME')) {
+      const tester = new Image();
+      tester.onload = () => {
+        img.src = url;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      tester.onerror = () => {
+        img.style.display = 'none';
+        placeholder.style.display = 'flex';
+      };
+      tester.src = url;
+    }
+  }
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = WEDDING_DATE - now;
+
+    if (diff <= 0) {
+      document.getElementById('countdown').style.display = 'none';
+      document.getElementById('weddingDay').classList.add('show');
+      document.getElementById('message').textContent = "Today, forever begins.";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('days').textContent = days;
+    document.getElementById('hrs').textContent = String(hours).padStart(2, '0');
+    document.getElementById('mins').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('secs').textContent = String(seconds).padStart(2, '0');
+  }
+
+  function spawnHearts() {
+    const container = document.getElementById('hearts');
+    const symbols = ['\u2764', '\u2665', '\u2661'];
+    for (let i = 0; i < 12; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.fontSize = (12 + Math.random() * 16) + 'px';
+      heart.style.animationDuration = (8 + Math.random() * 12) + 's';
+      heart.style.animationDelay = (Math.random() * 10) + 's';
+      container.appendChild(heart);
+    }
+  }
+
+  let lastRotIndex = -1;
+  function checkPhotoChange() {
+    const rotIndex = getRotationIndex();
+    if (rotIndex !== lastRotIndex) {
+      lastRotIndex = rotIndex;
+      const frame = document.getElementById('photoFrame');
+      const img = document.getElementById('photo');
+      img.style.opacity = '0';
+      setTimeout(() => {
+        loadPhoto();
+        img.style.opacity = '1';
+      }, 600);
+    }
+  }
+
+  loadPhoto();
+  updateCountdown();
+  spawnHearts();
+  lastRotIndex = getRotationIndex();
+
+  setInterval(updateCountdown, 1000);
+  setInterval(checkPhotoChange, 5000);
+</script>
+</body>
+</html>
